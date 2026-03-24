@@ -1,0 +1,4 @@
+fastapi
+requests
+google-generativeai
+uvicorn

@@ -1,0 +1,235 @@
+/* Import font modern dari Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@600;800&display=swap');
+
+:root {
+  --primary: #6366f1;
+  --secondary: #ec4899;
+  --bg-app: #f1f5f9;
+  --white: #ffffff;
+  --text-dark: #0f172a;
+  --text-light: #64748b;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --glass: rgba(255, 255, 255, 0.8);
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', sans-serif;
+  background: radial-gradient(circle at top right, #e0e7ff, var(--bg-app));
+  color: var(--text-dark);
+  display: flex;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+.scanner-container {
+  width: 100%;
+  max-width: 480px;
+  padding: 2rem 1.5rem;
+}
+
+/* --- HEADER STYLE --- */
+.app-header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.logo-area {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 0.5rem;
+}
+
+.ai-icon {
+  font-size: 2rem;
+  filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+}
+
+.app-header h1 {
+  font-family: 'Outfit', sans-serif;
+  font-size: 2.2rem;
+  font-weight: 800;
+  margin: 0;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.app-header p {
+  color: var(--text-light);
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+/* --- INPUT SECTION --- */
+.input-card {
+  background: var(--white);
+  padding: 1.5rem;
+  border-radius: 24px;
+  box-shadow: 0 10px 25px -5px rgba(0,0,0,0.05);
+  margin-bottom: 2rem;
+}
+
+.input-wrapper {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+input {
+  flex: 1;
+  padding: 14px 18px;
+  border: 2px solid #f1f5f9;
+  border-radius: 16px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+input:focus {
+  outline: none;
+  border-color: var(--primary);
+  background: #f8faff;
+}
+
+.btn-search {
+  padding: 0 18px;
+  background: var(--text-dark);
+  color: white;
+  border: none;
+  border-radius: 16px;
+  cursor: pointer;
+}
+
+.btn-camera-full {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, var(--secondary), #be185d);
+  color: white;
+  border: none;
+  border-radius: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.btn-camera-full:active { transform: scale(0.98); }
+
+/* --- RESULT CARD --- */
+.result-card {
+  background: var(--white);
+  border-radius: 28px;
+  padding: 1.8rem;
+  box-shadow: 0 20px 40px -10px rgba(0,0,0,0.08);
+  border: 1px solid rgba(255,255,255,0.7);
+}
+
+.card-header { margin-bottom: 1.5rem; }
+
+.brand-badge {
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: var(--primary);
+  background: #eef2ff;
+  padding: 4px 10px;
+  border-radius: 8px;
+  text-transform: uppercase;
+}
+
+.result-card h3 {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.5rem;
+  margin: 8px 0;
+}
+
+/* --- SCORE VISUAL --- */
+.ai-score-section {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 1.2rem;
+  border-radius: 20px;
+  margin-bottom: 1.5rem;
+}
+
+.score-circle {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.score-value { font-size: 1.5rem; font-weight: 800; }
+.score-label { font-size: 0.6rem; font-weight: 600; opacity: 0.7; }
+
+/* Status Colors */
+.score-good { background: #dcfce7; color: #166534; }
+.score-warning { background: #fef9c3; color: #854d0e; }
+.score-bad { background: #fee2e2; color: #991b1b; }
+
+/* --- SMART ADVICE --- */
+.smart-advice-box {
+  background: #f8fafc;
+  padding: 1.2rem;
+  border-radius: 18px;
+  margin-bottom: 1.5rem;
+  border-left: 4px solid var(--primary);
+}
+
+.advice-header { font-weight: 700; font-size: 0.9rem; margin-bottom: 10px; color: var(--primary); }
+
+.tag-list { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+.tag { background: white; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; border: 1px solid #e2e8f0; }
+
+.advice-list { padding-left: 18px; margin: 0; font-size: 0.9rem; color: #475569; }
+.advice-list li { margin-bottom: 8px; line-height: 1.4; }
+
+/* --- NUTRITION GRID --- */
+.nutrition-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+
+.nutri-item {
+  background: #f1f5f9;
+  padding: 12px 5px;
+  border-radius: 14px;
+  text-align: center;
+}
+
+.nutri-item strong { display: block; font-size: 0.95rem; }
+.nutri-item p { margin: 0; font-size: 0.7rem; color: var(--text-light); font-weight: 600; }
+
+/* --- FOOTER --- */
+.app-footer {
+  text-align: center;
+  margin-top: 3rem;
+  padding-bottom: 1rem;
+}
+
+.app-footer p { color: var(--text-light); font-size: 0.9rem; }
+.tech-stack { font-size: 0.8rem; color: var(--text-light); margin-top: 5px; opacity: 0.8; }
+.tech-stack span { color: var(--primary); font-weight: 700; }
+
+/* --- ANIMATIONS --- */
+.slide-up-enter-active { transition: all 0.5s ease-out; }
+.slide-up-enter-from { opacity: 0; transform: translateY(30px); }
+
+.ai-loading-box { text-align: center; padding: 2rem; }
+.brain-animation { font-size: 2.5rem; animation: pulse 1.5s infinite; }
+
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(1); opacity: 0.8; }
+}
