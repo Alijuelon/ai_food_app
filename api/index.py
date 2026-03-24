@@ -1,12 +1,14 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import requests
-import google.generativeai as genai
+from groq import Groq
 import json
+import os
 
 # Inisialisasi FastAPI
-app = FastAPI(title="AI Food Scanner API", version="2.0")
+app = FastAPI(title="AI Food Scanner API by Ali Sinaga", version="2.0")
 
+# Middleware CORS agar Vue bisa memanggil API
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"], 
@@ -15,61 +17,70 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Inisialisasi Groq Client (Mengambil API KEY dari Environment Variable Vercel)
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
 client = Groq(api_key=GROQ_API_KEY)
-# Menggunakan model Gemini 1.5 Flash (Sangat cepat dan cocok untuk teks)
-model = genai.GenerativeModel('gemini-2.5-flash')
 
-def analisis_nutrisi_dengan_ai_sungguhan(nama, gula, lemak, kalori, protein):
+def analisis_nutrisi_groq(nama, gula, lemak, kalori, protein):
     """
-    Mengirim data ke Gemini API dan memintanya menjadi ahli gizi yang merespons dalam format JSON.
+    Mengirim data ke Groq (Llama 3) untuk analisis gizi profesional dalam format JSON.
     """
     prompt = f"""
     Bertindaklah sebagai ahli gizi profesional dan analitis.
     Analisis produk "{nama}" dengan komposisi per 100g: 
     Kalori: {kalori} kcal, Gula: {gula}g, Lemak: {lemak}g, Protein: {protein}g.
 
-    Kembalikan HANYA format JSON valid tanpa format markdown (tanpa ```json). 
-    Struktur JSON harus persis seperti ini:
+    Tujuan: Berikan edukasi kesehatan yang jujur dan ringkas.
+    
+    WAJIB Kembalikan HANYA format JSON valid:
     {{
       "status": "Kategori keamanan (misal: Sangat Aman, Perlu Perhatian, Kurang Sehat)",
-      "health_score": (Angka dari 0 sampai 100 berdasarkan kualitas gizinya),
-      "kategori_cocok": ["Kategori diet 1", "Kategori diet 2"],
+      "health_score": (Angka 0-100),
+      "kategori_cocok": ["Contoh: Diet Rendah Gula", "Contoh: Bulking Otot"],
       "pesan_rekomendasi": [
-        "Saran medis/gizi kalimat 1", 
-        "Saran medis/gizi kalimat 2"
+        "Kalimat saran 1", 
+        "Kalimat saran 2"
       ]
     }}
     """
     
     try:
-        # Panggil Gemini API
-        response = model.generate_content(prompt)
+        # Panggil Groq API dengan Mode JSON
+        chat_completion = client.chat.completions.create(
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You are a professional nutritionist that only responds in JSON format."
+                },
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ],
+            model="llama-3.3-70b-versatile",
+            response_format={"type": "json_object"}
+        )
         
-        # Bersihkan response jika AI membandel menambahkan markdown ```json
-        raw_text = response.text.replace('```json', '').replace('```', '').strip()
-        
-        # Ubah teks JSON menjadi Dictionary Python
-        ai_data = json.loads(raw_text)
-        return ai_data
+        # Ambil konten teks dan ubah ke Dictionary
+        ai_response = chat_completion.choices[0].message.content
+        return json.loads(ai_response)
         
     except Exception as e:
-        # Fallback (Jika API gagal/limit)
-        print("Error Gemini API:", e)
+        print(f"Error Groq API: {e}")
         return {
-            "status": "Gagal Menganalisis",
+            "status": "Sistem Sedang Sibuk",
             "health_score": 0,
-            "kategori_cocok": ["Sistem Sedang Sibuk"],
-            "pesan_rekomendasi": ["Gagal terhubung ke server AI Ahli Gizi."]
+            "kategori_cocok": ["Gagal Menganalisis"],
+            "pesan_rekomendasi": ["Mohon maaf, ahli gizi AI sedang tidak tersedia. Coba lagi nanti."]
         }
 
-# ==========================================
-# ENDPOINT UTAMA
-# ==========================================
+# --- ENDPOINT ---
+
 @app.get("/api/scan/{barcode}")
 async def scan_barcode(barcode: str):
+    # Endpoint Open Food Facts
     url = f"https://world.openfoodfacts.org/api/v0/product/{barcode}.json"
-    headers = {"User-Agent": "AplikasiDeteksiMakanan_FastAPI/2.0"}
+    headers = {"User-Agent": "AliFoodScanner/2.0"}
     
     try:
         response = requests.get(url, headers=headers)
@@ -80,14 +91,16 @@ async def scan_barcode(barcode: str):
                 product = data.get("product", {})
                 nutriments = product.get("nutriments", {})
                 
-                nama_produk = product.get("product_name", "Produk Tidak Diketahui")
+                nama_produk = product.get("product_name", "Produk Tanpa Nama")
+                
+                # Ekstraksi nutrisi dengan nilai default 0 jika tidak ada
                 gula = nutriments.get("sugars_100g", 0)
                 lemak = nutriments.get("fat_100g", 0)
                 kalori = nutriments.get("energy-kcal_100g", 0)
                 protein = nutriments.get("proteins_100g", 0)
                 
-                # ---> PROSES KE GEMINI AI <---
-                hasil_ai = analisis_nutrisi_dengan_ai_sungguhan(nama_produk, gula, lemak, kalori, protein)
+                # Proses Analisis menggunakan Groq AI
+                hasil_ai = analisis_nutrisi_groq(nama_produk, gula, lemak, kalori, protein)
                 
                 return {
                     "success": True,
@@ -102,9 +115,9 @@ async def scan_barcode(barcode: str):
                     "analisis_ai": hasil_ai
                 }
             else:
-                raise HTTPException(status_code=404, detail="Produk tidak ditemukan di Open Food Facts.")
+                raise HTTPException(status_code=404, detail="Barcode tidak terdaftar di database global.")
         else:
-            raise HTTPException(status_code=response.status_code, detail="Gagal menghubungi API eksternal.")
+            raise HTTPException(status_code=response.status_code, detail="Server OpenFoodFacts bermasalah.")
             
-    except requests.exceptions.RequestException as e:
-        raise HTTPException(status_code=500, detail=f"Terjadi kesalahan koneksi server: {str(e)}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
