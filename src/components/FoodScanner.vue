@@ -120,6 +120,42 @@
         </div>
       </div>
 
+      <div class="clean-card mt-3 p-0 overflow-hidden">
+        <button @click="toggleAbout" class="about-toggle-btn">
+          <div class="about-toggle-left">
+            <span class="edu-icon">💡</span>
+            <span class="edu-title">Tentang AI Food Scanner</span>
+          </div>
+          <span class="chevron" :class="{ 'chevron-up': isAboutOpen }">▼</span>
+        </button>
+
+        <Transition name="fade-slide">
+          <div v-show="isAboutOpen" class="about-content p-4 bg-slate-50 border-t border-gray">
+            <p class="about-desc">
+              <strong>AI Food Scanner</strong> adalah "Ahli Gizi Pribadi" di saku Anda. Aplikasi ini membantu menguraikan dan menilai kandungan gizi dari makanan/minuman kemasan hanya dengan memindai <em>barcode</em>.
+            </p>
+            
+            <div class="about-feature">
+              <div class="feature-title">✨ Fitur Utama</div>
+              <ul class="feature-list">
+                <li><strong>Pemindai Ganda:</strong> Gunakan kamera langsung atau ketik nomor barcode manual.</li>
+                <li><strong>Health Score:</strong> AI menghitung nutrisi (gula, lemak, kalori) menjadi skor kesehatan 0-100.</li>
+                <li><strong>Analisis Cerdas:</strong> Menerjemahkan angka rumit menjadi saran praktis (misal: "Tinggi Kalori" atau "Batasi Konsumsi").</li>
+              </ul>
+            </div>
+
+            <div class="about-feature">
+              <div class="feature-title">🎯 Cocok Untuk</div>
+              <ul class="feature-list">
+                <li><strong>Penggiat Diet:</strong> Memantau asupan kalori dan makronutrisi harian.</li>
+                <li><strong>Orang Tua:</strong> Memilih camilan minimarket yang aman untuk anak.</li>
+                <li><strong>Peduli Kesehatan:</strong> Membatasi asupan gula dan garam untuk mencegah penyakit.</li>
+              </ul>
+            </div>
+          </div>
+        </Transition>
+      </div>
+
     </main>
 
     <footer class="app-footer">
@@ -145,7 +181,12 @@ const result = ref(null);
 const isLoading = ref(false);
 const errorMessage = ref('');
 const isCameraOpen = ref(false);
+const isAboutOpen = ref(false); // State untuk About accordion
 let html5QrcodeScanner = null;
+
+const toggleAbout = () => {
+  isAboutOpen.value = !isAboutOpen.value;
+};
 
 // Edu Data
 const eduItems = [
@@ -256,4 +297,3 @@ const statusBarClass = computed(() => {
   return 'status-bad';
 });
 </script>
-
