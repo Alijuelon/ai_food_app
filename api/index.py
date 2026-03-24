@@ -15,13 +15,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ==========================================
-# KONFIGURASI GEMINI AI
-# ==========================================
-# GANTI STRING DI BAWAH INI DENGAN API KEY DARI GOOGLE AI STUDIO
-GOOGLE_API_KEY = "AIzaSyAtXWkplH-EGamouR3MjOctL16iQraoop0"
-genai.configure(api_key=GOOGLE_API_KEY)
-
+GROQ_API_KEY = os.environ.get("GROQ_API_KEY")
+client = Groq(api_key=GROQ_API_KEY)
 # Menggunakan model Gemini 1.5 Flash (Sangat cepat dan cocok untuk teks)
 model = genai.GenerativeModel('gemini-2.5-flash')
 
