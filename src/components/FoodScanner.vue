@@ -1,164 +1,105 @@
 <template>
   <div class="scanner-container">
-
-    <!-- Beta Banner -->
-    <div class="beta-banner">
-      <span class="beta-pill">BETA</span>
-      <span>Aplikasi ini masih dalam tahap uji coba — data dan analisis bersifat demonstratif</span>
-    </div>
-
-    <!-- Header -->
-    <header class="app-header">
-      <div class="header-top">
-        <div class="logo-icon">🥗</div>
-        <h1>AI Food Scanner</h1>
+    <header class="app-header-3d">
+      <div class="logo-3d">
+        <span class="emoji">🥗</span>
       </div>
-      <p class="header-sub">Analisis nutrisi cerdas berbasis AI · by Ali Sinaga</p>
+      <div class="brand-text">
+        <h1>AI Food Scanner</h1>
+        <p>Advanced Nutrition Intelligence by <strong>Ali Sinaga</strong></p>
+      </div>
     </header>
 
     <main class="main-content">
-
-      <!-- Input Card -->
-      <div class="input-card">
-        <div class="search-label">Scan Produk</div>
+      <div class="control-card-3d">
+        <div class="search-label">Input Barcode</div>
         <div class="search-row">
           <input
             v-model="barcode"
             type="text"
-            placeholder="Masukkan nomor barcode..."
+            placeholder="Ketik angka barcode..."
             @keyup.enter="scanBarcode"
             :disabled="isLoading"
-            class="search-input"
           />
-          <button @click="scanBarcode" :disabled="isLoading" class="btn-scan">
-            <span v-if="!isLoading">Scan →</span>
-            <span v-else class="loader-mini"></span>
+          <button @click="scanBarcode" :disabled="isLoading" class="btn-3d-dark">
+            <span v-if="!isLoading">SCAN</span>
+            <div v-else class="loader-mini"></div>
           </button>
         </div>
-        <button @click="toggleCamera" :disabled="isLoading" class="btn-camera">
-          {{ isCameraOpen ? '✕  Tutup Kamera' : '📷  Buka kamera untuk scan barcode kemasan' }}
-        </button>
+
+        <div class="camera-controls">
+          <button @click="toggleCamera" :disabled="isLoading" class="btn-3d-primary">
+            {{ isCameraOpen ? '✕ Tutup' : '📷 Buka Kamera' }}
+          </button>
+          
+          <button 
+            v-if="isCameraOpen" 
+            @click="switchCamera" 
+            class="btn-3d-secondary"
+          >
+            🔄 Putar
+          </button>
+        </div>
       </div>
 
-      <!-- Camera -->
-      <Transition name="fade">
-        <div v-show="isCameraOpen" class="camera-wrapper">
+      <Transition name="zoom">
+        <div v-show="isCameraOpen" class="camera-canvas">
           <div id="reader"></div>
+          <div class="camera-overlay">
+            <div class="corner tl"></div><div class="corner tr"></div>
+            <div class="corner bl"></div><div class="corner br"></div>
+          </div>
         </div>
       </Transition>
 
-      <!-- Loading -->
-      <div v-if="isLoading" class="loading-box">
-        <div class="brain-pulse">🧠</div>
-        <p>Gemini AI sedang menganalisis kandungan gizi...</p>
+      <div v-if="isLoading" class="ai-loading-3d">
+        <div class="floating-brain">🧠</div>
+        <div class="loading-text">Ali AI sedang memproses data...</div>
       </div>
 
-      <!-- Error -->
-      <div v-if="errorMessage" class="error-toast">
-        <span>⚠</span> {{ errorMessage }}
-      </div>
-
-      <!-- Result Card -->
-      <Transition name="slide-up">
-        <div v-if="result && !isLoading" class="result-card">
-
-          <!-- Product Header -->
-          <div class="result-header">
-            <div class="product-meta">
-              <div class="product-category">{{ result.kategori || 'Produk Pangan' }}</div>
-              <div class="product-name">{{ result.nama_produk }}</div>
-            </div>
-            <div class="score-badge" :class="scoreClass">
-              <div class="score-number">{{ result.analisis_ai.health_score }}</div>
-              <div class="score-text">HEALTH</div>
-            </div>
-          </div>
-
-          <!-- Status Bar -->
-          <div class="status-bar" :class="statusBarClass">
-            <div class="status-dot"></div>
-            <div class="status-text">{{ result.analisis_ai.status }}</div>
-            <div class="status-sub">{{ result.analisis_ai.frekuensi }}</div>
-          </div>
-
-          <!-- Nutrition Grid -->
-          <div class="nutri-section">
-            <div class="nutri-title">Nilai gizi per 100g</div>
-            <div class="nutri-grid">
-              <div class="nutri-item">
-                <div class="nutri-val">{{ result.nutrisi_per_100g.kalori }}</div>
-                <div class="nutri-label">Kkal</div>
+      <Transition name="flip-3d">
+        <div v-if="result && !isLoading" class="result-card-3d">
+          <div class="card-inner" :class="scoreClass">
+            
+            <div class="top-row">
+              <div class="product-info">
+                <span class="chip">ALI AI ANALYSIS</span>
+                <h2>{{ result.nama_produk }}</h2>
               </div>
-              <div class="nutri-item">
-                <div class="nutri-val">{{ result.nutrisi_per_100g.gula }}g</div>
-                <div class="nutri-label">Gula</div>
-              </div>
-              <div class="nutri-item">
-                <div class="nutri-val">{{ result.nutrisi_per_100g.lemak }}g</div>
-                <div class="nutri-label">Lemak</div>
-              </div>
-              <div class="nutri-item">
-                <div class="nutri-val">{{ result.nutrisi_per_100g.protein }}g</div>
-                <div class="nutri-label">Protein</div>
+              <div class="score-3d-ball">
+                <span class="num">{{ result.analisis_ai.health_score }}</span>
+                <span class="lab">HEALTH</span>
               </div>
             </div>
-          </div>
 
-          <!-- AI Analysis -->
-          <div class="ai-section">
-            <div class="ai-header">
-              <span class="ai-label">Analisis AI</span>
-              <span class="ai-badge">GEMINI</span>
+            <div class="status-banner">
+              <strong>{{ result.analisis_ai.status }}</strong>
             </div>
-            <div class="tag-row">
-              <span
-                v-for="tag in result.analisis_ai.kategori_cocok"
-                :key="tag"
-                class="tag"
-              >{{ tag }}</span>
+
+            <div class="grid-3d">
+              <div class="grid-item"><strong>{{ result.nutrisi_per_100g.kalori }}</strong><p>Kkal</p></div>
+              <div class="grid-item"><strong>{{ result.nutrisi_per_100g.gula }}g</strong><p>Gula</p></div>
+              <div class="grid-item"><strong>{{ result.nutrisi_per_100g.lemak }}g</strong><p>Lemak</p></div>
+              <div class="grid-item"><strong>{{ result.nutrisi_per_100g.protein }}g</strong><p>Protein</p></div>
             </div>
-            <ul class="advice-list">
-              <li
-                v-for="msg in result.analisis_ai.pesan_rekomendasi"
-                :key="msg"
-                class="advice-item"
-              >
-                <div class="advice-dot"></div>
-                <div>{{ msg }}</div>
-              </li>
-            </ul>
-          </div>
 
-        </div>
-      </Transition>
-
-      <!-- Education Section -->
-      <div class="edu-card">
-        <div class="edu-header">
-          <div class="edu-icon">📚</div>
-          <div class="edu-title">Cara membaca label nutrisi</div>
-        </div>
-        <div class="edu-items">
-          <div class="edu-item" v-for="(item, i) in eduItems" :key="i">
-            <div class="edu-num">{{ i + 1 }}</div>
-            <div>
-              <div class="edu-text-title">{{ item.title }}</div>
-              <div class="edu-text-body">{{ item.body }}</div>
+            <div class="advice-box-3d">
+              <div class="advice-tags">
+                <span v-for="tag in result.analisis_ai.kategori_cocok" :key="tag" class="tag-3d">{{ tag }}</span>
+              </div>
+              <ul class="advice-list-3d">
+                <li v-for="msg in result.analisis_ai.pesan_rekomendasi" :key="msg">{{ msg }}</li>
+              </ul>
             </div>
           </div>
         </div>
-      </div>
-
+      </Transition>
     </main>
 
-    <!-- Footer -->
-    <footer class="app-footer">
+    <footer class="footer-3d">
       <p>© 2026 Developed by <strong>Ali Sinaga</strong></p>
-      <div class="tech-stack">
-        <span>Vue JS</span> · <span>FastAPI</span> · <span>Gemini AI</span>
-      </div>
+      <div class="stack">VUE 3 • FASTAPI • DEEP LEARNING</div>
     </footer>
-
   </div>
 </template>
 
@@ -171,105 +112,66 @@ const result = ref(null);
 const isLoading = ref(false);
 const errorMessage = ref('');
 const isCameraOpen = ref(false);
+const currentFacingMode = ref('environment'); // environment = belakang, user = depan
 let html5QrcodeScanner = null;
 
-// Konten edukasi
-const eduItems = [
-  {
-    title: 'Perhatikan "Takaran Saji"',
-    body: 'Semua angka nutrisi berlaku per takaran saji, bukan per kemasan penuh. Satu bungkus bisa berisi 2–3 sajian.'
-  },
-  {
-    title: '%AKG — Angka Kecukupan Gizi',
-    body: 'Angka ini menunjukkan berapa % kebutuhan harianmu yang terpenuhi. Di atas 20% berarti tinggi, di bawah 5% berarti rendah.'
-  },
-  {
-    title: 'Waspadai 3 hal ini',
-    body: 'Gula tambahan, natrium (sodium), dan lemak jenuh adalah tiga zat yang paling perlu dibatasi dalam diet sehari-hari.'
-  },
-  {
-    title: 'Health Score bukan satu-satunya ukuran',
-    body: 'Skor AI bersifat panduan, bukan patokan mutlak. Konsultasikan kebutuhan nutrisimu dengan ahli gizi untuk hasil terbaik.'
-  }
-];
-
-// --- FUNGSI API ---
 const scanBarcode = async () => {
-  if (!barcode.value.trim()) {
-    errorMessage.value = 'Silakan masukkan nomor barcode terlebih dahulu.';
-    return;
-  }
-
+  if (!barcode.value.trim()) return;
   isLoading.value = true;
-  errorMessage.value = '';
   result.value = null;
-
   try {
     const response = await fetch(`/api/scan/${barcode.value}`);
     const data = await response.json();
-
-    if (!response.ok) throw new Error(data.detail || 'Terjadi kesalahan pada server.');
-
     result.value = data;
-  } catch (error) {
-    errorMessage.value = 'Gagal terhubung ke server atau produk tidak ditemukan.';
+  } catch (e) {
+    errorMessage.value = "Produk tidak ditemukan.";
   } finally {
     isLoading.value = false;
   }
 };
 
-// --- FUNGSI KAMERA ---
 const toggleCamera = () => {
   isCameraOpen.value = !isCameraOpen.value;
-  if (isCameraOpen.value) {
-    setTimeout(() => startScanner(), 100);
-  } else {
-    stopScanner();
-  }
+  if (isCameraOpen.value) setTimeout(() => startScanner(), 100);
+  else stopScanner();
+};
+
+const switchCamera = () => {
+  // Ganti mode kamera
+  currentFacingMode.value = currentFacingMode.value === 'environment' ? 'user' : 'environment';
+  stopScanner();
+  setTimeout(() => startScanner(), 200);
 };
 
 const startScanner = () => {
   html5QrcodeScanner = new Html5QrcodeScanner(
-    'reader',
-    {
-      fps: 10,
-      qrbox: { width: 250, height: 100 },
-      videoConstraints: { facingMode: 'environment' }
+    "reader",
+    { 
+      fps: 15, 
+      qrbox: { width: 250, height: 120 },
+      videoConstraints: { facingMode: currentFacingMode.value } 
     },
     false
   );
-  html5QrcodeScanner.render(onScanSuccess, () => {});
-};
-
-const onScanSuccess = (decodedText) => {
-  barcode.value = decodedText;
-  toggleCamera();
-  scanBarcode();
+  html5QrcodeScanner.render((txt) => {
+    barcode.value = txt;
+    toggleCamera();
+    scanBarcode();
+  }, () => {});
 };
 
 const stopScanner = () => {
   if (html5QrcodeScanner) {
-    html5QrcodeScanner.clear().catch(e => console.error(e));
+    html5QrcodeScanner.clear();
     html5QrcodeScanner = null;
   }
 };
 
 onBeforeUnmount(() => stopScanner());
 
-// --- COMPUTED ---
 const scoreClass = computed(() => {
   if (!result.value) return '';
-  const score = result.value.analisis_ai.health_score;
-  if (score >= 80) return 'score-good';
-  if (score >= 50) return 'score-warn';
-  return 'score-bad';
-});
-
-const statusBarClass = computed(() => {
-  if (!result.value) return '';
-  const score = result.value.analisis_ai.health_score;
-  if (score >= 80) return 'status-good';
-  if (score >= 50) return 'status-warn';
-  return 'status-bad';
+  const s = result.value.analisis_ai.health_score;
+  return s >= 80 ? 'is-good' : s >= 50 ? 'is-warn' : 'is-bad';
 });
 </script>
