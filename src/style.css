@@ -196,7 +196,6 @@
     0 4px 20px rgba(22,163,74,0.5),
     0 8px 32px rgba(22,163,74,0.2);
 }
-
 .logo-bottom {
   width: 48px;
   height: 12px;
@@ -204,9 +203,8 @@
   bottom: -6px;
   left: 4px;
   z-index: 2;
-  transform: rotateX(-90deg);
+  transform: rotateX(-90deg) skewX(-5deg); /* Gabungkan di sini */
   transform-origin: bottom center;
-  skewX(-5deg);
   opacity: 0.6;
 }
 
@@ -217,12 +215,10 @@
   top: 4px;
   right: -4px;
   z-index: 1;
-  transform: rotateY(90deg);
+  transform: rotateY(90deg) skewY(-5deg); /* Gabungkan di sini */
   transform-origin: right center;
-  skewY(-5deg);
   opacity: 0.6;
 }
-
 @keyframes logoFloat {
   0%, 100% { transform: translateY(0px) rotateX(0deg); }
   50% { transform: translateY(-4px) rotateX(3deg); }
